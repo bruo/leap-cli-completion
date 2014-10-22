@@ -1,0 +1,70 @@
+# leap cli completion
+
+_leap_complete_nodes () {
+	nodes="${leap_STORE_DIR:-nodes/}"
+	suffix=".json"
+
+	local items=($(compgen -f $nodes$cur))
+	for item in ${items[@]}; do
+		item="${item%$suffix}"
+		COMPREPLY+=("${item#$nodes}")
+	done
+}
+
+_leap_complete_tags () {
+	tags="${leap_STORE_DIR:-tags/}"
+	suffix=".json"
+	local items=($(compgen -f $tags$cur))
+	for item in ${items[@]}; do
+		item="${item%$suffix}"
+		COMPREPLY+=("${item#$tags}")
+	done
+}
+
+_leap()
+{
+	COMPREPLY=()
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	local commands="add-user clean deploy help inspect list mosh new ssh cert compile db facts local node test"
+	if [[ $COMP_CWORD -gt 1 ]]; then
+		local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
+		case "${COMP_WORDS[1]}" in
+			deploy)
+				_leap_complete_nodes
+				_leap_complete_tags
+				;;
+			mosh)
+				_leap_complete_nodes
+				;;
+			ssh)
+				_leap_complete_nodes
+				;;
+			cert)
+				COMPREPLY+=($(compgen -W "ca csr dh update" -- ${cur}))
+				;;
+			compile)
+				COMPREPLY+=($(compgen -W "all zone" -- ${cur}))
+				;;
+			facts)
+				COMPREPLY+=($(compgen -W "update" -- ${cur}))
+				;;
+			local)
+				COMPREPLY+=($(compgen -W "start stop status" -- ${cur}))
+				_leap_complete_nodes
+				;;
+			node)
+				COMPREPLY+=($(compgen -W "add init rm mv" -- ${cur}))
+				_leap_complete_nodes
+				;;
+			test)
+				COMPREPLY+=($(compgen -W "init run" -- ${cur}))
+				_leap_complete_nodes
+				;;
+		esac
+	else
+		COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
+
+	fi
+}
+
+complete -o filenames -F _leap leap v2
