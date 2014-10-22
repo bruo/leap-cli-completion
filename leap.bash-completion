@@ -21,14 +21,20 @@ _leap_complete_tags () {
 	done
 }
 
+_leap_global_options() {
+	COMPREPLY+=($(compgen -W "--color --no-color --debug --help --log= -v2 --version" -- ${cur}))
+}
+
 _leap()
 {
 	COMPREPLY=()
 	local cur="${COMP_WORDS[COMP_CWORD]}"
 	local commands="add-user clean deploy help inspect list mosh new ssh cert compile db facts local node test"
-	if [[ $COMP_CWORD -gt 1 ]]; then
+
+	if [[ $COMP_CWORD -gt 1 ]] && [[ "$cur" != -* ]]; then
 		local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
-		case "${COMP_WORDS[1]}" in
+
+		case "${COMP_WORDS[$COMP_CWORD-1]}" in
 			deploy)
 				_leap_complete_nodes
 				_leap_complete_tags
@@ -60,11 +66,19 @@ _leap()
 				COMPREPLY+=($(compgen -W "init run" -- ${cur}))
 				_leap_complete_nodes
 				;;
+			*)
+				COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
+				;;
 		esac
+
 	else
-		COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
+		if [[ "$cur" == -* ]]; then
+			_leap_global_options
+		else 
+			COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
+		fi
 
 	fi
 }
 
-complete -o filenames -F _leap leap v2
+complete -o filenames -F _leap leap
