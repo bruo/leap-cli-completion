@@ -22,7 +22,7 @@ _leap_complete_tags () {
 }
 
 _leap_global_options() {
-	COMPREPLY+=($(compgen -W "--color --no-color --debug --help --log= -v2 --version" -- ${cur}))
+	COMPREPLY+=($(compgen -W "--color --no-color --debug --help --log= --verbose= -v1 -v2 -v3 -v4 -v5 --version" -- ${cur}))
 }
 
 _leap()
